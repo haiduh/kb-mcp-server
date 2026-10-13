@@ -29,9 +29,9 @@ def search_files(query: str, directory: str = DEFAULT_DIR):
                 full_path = os.path.join(root, name)
                 
                 try:
-                    with open(full_path) as f:
+                    with open(full_path, encoding="utf-8") as f:
                         line_match = f.readlines()
-                except FileNotFoundError:
+                except (FileNotFoundError, UnicodeError):
                     print("File not found, continuing...")
                     continue
                 
@@ -55,10 +55,10 @@ def read_file(file_path: str):
         FileNotFoundError: Caught internally to return a user-friendly error string instead of crashing.
     """
     try:
-        with open(file_path) as f:
+        with open(file_path, encoding="utf-8") as f:
             file_read = f.read()
         return file_read
-    except FileNotFoundError as e:
+    except (FileNotFoundError, UnicodeError):
         return f"File not found at: {file_path}"
     
 def write_file(content: str, file_path: str):
@@ -76,7 +76,7 @@ def write_file(content: str, file_path: str):
         OSError: Caught internally to return a user-friendly error message instead of crashing.
     """
     try:
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
         return f"Content written complete: {file_path}"
     except OSError:
