@@ -6,7 +6,7 @@ import chromadb
 
 DEFAULT_DIR = ""
 model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L6-cos-v5')
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path=str(Path(__file__).parent / "chroma_db"))
 collection = client.get_or_create_collection(name="my-notes")
 
 def search_files(query: str, directory: str = DEFAULT_DIR):
