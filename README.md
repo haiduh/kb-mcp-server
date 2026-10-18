@@ -11,7 +11,6 @@ A personal knowledge base MCP server that exposes search, read, write, and seman
 
 ## Requirements
 
-- Windows (uses Windows paths; Linux/macOS not currently supported)
 - Python 3.11+
 - Claude Desktop (or any MCP-compatible client)
 
