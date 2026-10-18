@@ -1,5 +1,5 @@
 from mcp.server import MCPServer
-from services import search_files, read_file, write_file 
+from services import search_files, read_file, write_file, index_files, semantic_search
 
 mcp = MCPServer("KnowBase")
 
@@ -17,6 +17,16 @@ def read(file_path: str) -> str:
 def write(content: str, file_path: str) -> str:
     """Writes text content to a specified file path."""
     return write_file(content, file_path)
+
+@mcp.tool()
+def index(directory: str):
+    """Indexes files in a directory for semantic search."""
+    return index_files(directory)
+
+@mcp.tool()
+def semantic(query: str, directory: str):
+    """Performs a semantic search across indexed files."""
+    return semantic_search(query, directory)
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
