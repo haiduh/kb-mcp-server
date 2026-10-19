@@ -69,4 +69,4 @@ Always provide the full Windows path to the directory or file.
 |--------|--------|-----------------|------|-------|
 | `.txt` | ✅ | ✅ | ✅ | ✅ |
 | `.md` | ✅ | ✅ | ✅ | ✅ |
-| `.docx` | 🔜 | 🔜 | 🔜 | 🔜 |
+| `.docx` | ✅ | ✅ | ✅ | 🔜 |

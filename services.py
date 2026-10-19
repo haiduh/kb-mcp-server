@@ -2,12 +2,23 @@
 
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
+from docx import Document
 import chromadb
 
 DEFAULT_DIR = ""
 model = SentenceTransformer('sentence-transformers/msmarco-MiniLM-L6-cos-v5')
 client = chromadb.PersistentClient(path=str(Path(__file__).parent / "chroma_db"))
 collection = client.get_or_create_collection(name="my-notes")
+
+def read_docx(path):
+    res = []
+    document = Document(path)
+    
+    for para in document.paragraphs:
+        res.append(para.text)
+        
+    final_text = "\n".join(res)
+    return final_text
 
 def search_files(query: str, directory: str = DEFAULT_DIR):
     """Searches through local files for a query string and returns the filename and full path 
@@ -25,12 +36,15 @@ def search_files(query: str, directory: str = DEFAULT_DIR):
     query_lower = query.lower()
 
     for path in Path(directory).rglob("*"):
-        if path.suffix not in (".txt", ".md"):
+        if path.suffix not in (".txt", ".md", ".docx"):
             continue
 
         try:
-            with path.open(encoding="utf-8") as f:
-                lines = f.readlines()
+            if path.suffix == ".docx":
+                lines = read_docx(path).splitlines()
+            else:
+                with path.open(encoding="utf-8") as f:
+                    lines = f.readlines()
         except (FileNotFoundError, UnicodeError):
             print("File not found, continuing...")
             continue
@@ -51,9 +65,14 @@ def read_file(file_path: str):
     Returns:
         str: The full string content of the file if found, or an error message if not found.
     """
+    path = Path(file_path)
+    
     try:
-        with Path(file_path).open(encoding="utf-8") as f:
-            return f.read()
+        if path.suffix == ".docx":
+            return read_docx(path)
+        else:
+            with path.open(encoding="utf-8") as f:
+                return f.read()
     except (FileNotFoundError, UnicodeError):
         return f"File not found at: {file_path}"
 
@@ -81,7 +100,7 @@ def index_files(directory):
         directory (str): The root directory path to index.
     """
     for path in Path(directory).rglob("*"):
-            if path.suffix not in (".txt", ".md"):
+            if path.suffix not in (".txt", ".md", ".docx"):
                 continue
             
             stat_result = path.stat()
@@ -96,8 +115,11 @@ def index_files(directory):
                     continue  # Skip embedding and updating if unchanged
             
             try:
-                with path.open(encoding='utf-8') as f:
-                    file_lines = f.readlines()
+                if path.suffix == ".docx":
+                    file_lines = read_docx(path).splitlines()
+                else:
+                    with path.open(encoding="utf-8") as f:
+                        file_lines = f.readlines()
             except (FileNotFoundError, UnicodeError) as e:
                 print("This was the error", e)
                 continue
@@ -142,5 +164,4 @@ def semantic_search(query, directory):
     
     return total_files
 
-# testing purposes: print(search_files("brown fox", "F:/coding/projects/kb-mcp-server/test"))
-print(semantic_search("brown fox", "F:/coding/projects/kb-mcp-server/test"))
+# testing purposes: print(read_docx("F:/coding/projects/kb-mcp-server/test/test3.docx"))
